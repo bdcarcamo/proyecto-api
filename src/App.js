@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 
-import { Table } from 'reactstrap';
+import { Card, CardImg, CardText, CardBody,
+  CardTitle, CardSubtitle, Button } from 'reactstrap';
+
+import { Container, Row, Col } from 'reactstrap';
 
 import './App.css';
 
@@ -8,6 +11,7 @@ class App extends Component {
 
   constructor(props) {
     super(props);
+
     this.state = ({
       articulos : []
     })
@@ -15,48 +19,42 @@ class App extends Component {
 
   componentWillMount() {
 
-    const ts = Date.now(),
-          publicKey = 'b5dd158dd0e856443db7fb726fbc6bc9',
-          privateKey = '80182fcb24c6426319114b9e34eafed6',
-          hash = md5(ts + publicKey + privateKey),
-          URL = `http://gateway.marvel.com/v1/public/characters?=${ts}&apikey=${publicKey}&hash=${hash}`;
+    const URL = `http://gateway.marvel.com/v1/public/comics?ts=1&apikey=b5dd158dd0e856443db7fb726fbc6bc9&hash=80182fcb24c6426319114b9e34eafed6`;
 
     fetch(URL)
       .then((response) => {
-        // return response.json()
-        console.log(response)
+        return response.json()
       })
-      .then((art) => {
-        this.setState({ articulos: art })
+      .then((response) => {
+        let comics = response.data.results;
+        this.setState({ articulos: comics })
+        console.log(response);
       })    
   }
 
   render() {
     return (
-        <div>
-          <Table responsive dark>
-          <thead>
-            <tr>
-              <th scope="row">Código</th>
-              <th scope="row">Descripción</th>
-              <th scope="row">Precio</th>                    
-            </tr>
-          </thead>
-          <tbody>  
-            {this.state.articulos.map(art => {
+        <Container>
+          <Row>
+            {this.state.articulos.map(comic => {
+            let image = `${comic.thumbnail.path}.${comic.thumbnail.extension}`
               return (
-                <tr key={art.userId}>
-                  <td>{art.userId}</td>
-                  <td>{art.id}</td>
-                  <td>{art.title} </td>
-                </tr>
+                <Col xs="12" sm="12" md={{ size: 8, offset: 2 }}>
+                  <Card key={comic.id}>
+                    <CardImg top width="100%" src={image} alt="Card image cap" />
+                    <CardBody>
+                      <CardTitle>{comic.title}</CardTitle>
+                      <CardSubtitle>{comic.dates.date}</CardSubtitle>
+                    </CardBody>
+                  </Card>
+                </Col>
               );
             })}
-          </tbody>
-        </Table>
-      </div>
+      </Row>
+      </Container>
     );
   }
+
 }
 
 export default App;
